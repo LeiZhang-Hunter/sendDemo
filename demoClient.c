@@ -60,7 +60,7 @@ int main()
     }
 
     //wait等待子进程执行完毕
-    for(i=0;i<4;i++)
+    for(i=0;i<WORK_NUM;i++)
     {
         waitpid(arr[i],&status,-1);
     }
