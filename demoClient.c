@@ -10,7 +10,7 @@
 
 #define WORK_NUM 4
 int run = 1;
-
+#define SEND_COUNT 1000
 int main()
 {
     int i = 0;
@@ -46,7 +46,7 @@ int main()
                 uint32_t data = (count);
                 size_t res = send(socket_fd,&data,sizeof(data),0);
                 printf("%ld\n",res);
-                if(count == 10)
+                if(count == SEND_COUNT)
                 {
                     break;
                 }
