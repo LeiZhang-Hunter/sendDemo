@@ -9,7 +9,7 @@ gcc demoServer.c -o demoServer
 gcc demoClient.c -o demoClient
 ```
 
-结果发现服务端本来应该接收到88个字节，结果却少于88，说明缓冲区出现了安全问题
+结果发现服务端本来应该接收到176个字节，结果为176，说明无字节数问题
 
 ####第二个测试例子
 ```
@@ -17,11 +17,13 @@ gcc demoClientServerv.c -o demoServerv
 gcc demoClientWritev.c -o demoClientv
 ```
 
-结果发现服务端本来应该接收到88个字节，结果却少于88，说明缓冲区出现了安全问题
+结果发现服务端本来应该接收到176个字节，结果为176，说明无字节数问题
 
 
 又继续测试了多线程版本
 ```
-gcc demoClientServerv.c -o demoServer -lpthread
+gcc demoClientServerv.c -o demoServer
 gcc multiThreadClient.c -o demoClient -lpthread
 ```
+
+结果发现服务端本来应该接收到176个字节，结果为176，说明无字节数问题

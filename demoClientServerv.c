@@ -108,8 +108,9 @@ int main()
 
                     }else{
                         //客户端套接字已经关闭了
-                        count = 0;
                         printf("%d\n",count);
+                        count = 0;
+
                         close(client_fd);
                         break;
                     }

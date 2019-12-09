@@ -10,7 +10,7 @@
 #include <sys/uio.h>
 #include <pthread.h>
 
-#define WORK_NUM 2
+#define WORK_NUM 4
 int run = 1;
 
 int writeBuf(int fd,char* buf,size_t len)

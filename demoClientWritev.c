@@ -58,7 +58,6 @@ int main()
                 {
                     printf("%d;%s\n",errno,strerror(errno));
                 }
-                printf("%ld\n",res);
 
                 if(count == 10)
                 {
@@ -78,6 +77,7 @@ int main()
     {
         waitpid(arr[i],&status,-1);
     }
+    printf("%s\n","end");
     return 0;
 }
 
