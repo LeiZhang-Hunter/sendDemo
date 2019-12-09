@@ -41,7 +41,7 @@ int main()
         printf("errno:%d,errno:%s;file:%s;line:%d\n",errno,strerror(errno),__FILE__,__LINE__);
         exit(-1);
     }
-    char buf[sizeof(uint32_t)];
+    char buf[BUFSIZ];
     //计数器
     int count = 0;
 
@@ -105,9 +105,11 @@ int main()
                         //数据报可能出现粘包问题
                         //查看接收结果
                         count+=read_size;
-                        printf("%d\n",count);
+
                     }else{
                         //客户端套接字已经关闭了
+                        count = 0;
+                        printf("%d\n",count);
                         close(client_fd);
                         break;
                     }
