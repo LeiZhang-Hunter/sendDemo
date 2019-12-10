@@ -7,10 +7,31 @@
 #include <stdlib.h>
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #define EVENT_NUM 1
 
 int run = 1;
+
+//设置套接字为非阻塞
+int set_fd_nonblock(int fd)
+{
+    int val;
+    int res;
+    val = fcntl(fd,F_GETFL,0);
+    if(val == -1)
+    {
+        printf("%d\n;%s",errno,strerror(errno));
+        return  -1;
+    }
+
+    res = fcntl(fd,F_SETFL,(val | O_NONBLOCK));
+    if(res == -1)
+    {
+        printf("%d\n;%s",errno,strerror(errno));
+        return  -1;
+    }
+}
 
 int main()
 {
@@ -24,6 +45,11 @@ int main()
     server_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
     server_addr.sin_port = htons(5000);
     server_addr.sin_family = AF_INET;
+
+    //允许端口复用
+    int opt = 1;
+    setsockopt(fd,SOL_SOCKET,SO_REUSEADDR,&opt,sizeof(opt));
+
     //绑定端口
     res = bind(fd,(struct sockaddr *)&server_addr,sizeof(server_addr));
     if(res < 0)
@@ -84,30 +110,41 @@ int main()
                         event.data.fd = client_fd;
                         event.events = EPOLLIN|EPOLLET;
                         res = epoll_ctl(epoll_fd,EPOLL_CTL_ADD,client_fd,&event);
+                        //将套接字设置为非阻塞，buf缓冲区如果太大一次读不完!!!
+                        set_fd_nonblock(client_fd);
                     }
                 }else{
                     //client
                     client_fd = eventCollect[i].data.fd;
-                    read_size = recv(client_fd,buf,sizeof(buf),0);
-                    if(read_size < 0)
+                    while((read_size = recv(client_fd,buf,sizeof(buf),0)))
                     {
-                        if(errno == EINTR)
+                        if(read_size == -1)
                         {
-                            continue;
-                        }else{
-                            printf("errno:%d,errno:%s\n",errno,strerror(errno));
+                            if(errno == EINTR)
+                            {
+                                continue;
+                            }else if(errno == EAGAIN){
+                                //如果是EAGAIN说明没有数据能读了
+                                break;
+                            }else{
+                                printf("errno:%d,errno:%s\n",errno,strerror(errno));
+                            }
+                        }else if(read_size > 0){
+                            //数据报可能出现粘包问题
+                            //查看接收结果
+                            count+=read_size;
+                            //继续接收结果
                         }
-                    }else if(read_size > 0){
-                        //数据报可能出现粘包问题
-                        //查看接收结果
-                        count+=read_size;
-                    }else{
-                        //客户端套接字已经关闭了
-                        printf("%d\n",count);
+                    }
+
+                    //客户端套接字已经关闭了
+                    if(read_size == 0) {
+                        printf("close:%d\n", count);
                         count = 0;
                         close(client_fd);
-                        break;
                     }
+                    break;
+
                 }
             }
         }
