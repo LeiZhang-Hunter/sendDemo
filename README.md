@@ -17,3 +17,4 @@ ine-height:0@�D{�Ubuf:!important}#csdn_tool_otherPlace .pull-right .gi
 
 这一类错误的字节
 
+说明send写入出现了乱序问题，send不是原子的
