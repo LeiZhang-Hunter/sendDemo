@@ -116,6 +116,7 @@ int main()
                 }else{
                     //client
                     client_fd = eventCollect[i].data.fd;
+                    bzero(buf,sizeof(buf));
                     while((read_size = recv(client_fd,buf,sizeof(buf),0)))
                     {
                         if(read_size == -1)
@@ -134,6 +135,7 @@ int main()
                             //查看接收结果
                             count+=read_size;
                             //继续接收结果
+                            printf("buf:%s",buf);
                         }
                     }
 

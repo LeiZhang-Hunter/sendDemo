@@ -8,8 +8,29 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <sys/uio.h>
+#include <fcntl.h>
 
 #define EVENT_NUM 1
+
+//设置套接字为非阻塞
+int set_fd_nonblock(int fd)
+{
+    int val;
+    int res;
+    val = fcntl(fd,F_GETFL,0);
+    if(val == -1)
+    {
+        printf("%d\n;%s",errno,strerror(errno));
+        return  -1;
+    }
+
+    res = fcntl(fd,F_SETFL,(val | O_NONBLOCK));
+    if(res == -1)
+    {
+        printf("%d\n;%s",errno,strerror(errno));
+        return  -1;
+    }
+}
 
 int run = 1;
 
@@ -87,28 +108,34 @@ int main()
                         event.data.fd = client_fd;
                         event.events = EPOLLIN|EPOLLET;
                         res = epoll_ctl(epoll_fd,EPOLL_CTL_ADD,client_fd,&event);
+                        set_fd_nonblock(client_fd);
                     }
                 }else{
                     //client
                     client_fd = eventCollect[i].data.fd;
+                    bzero(buf,sizeof(buf));
 //                    read_size = recv(client_fd,buf,sizeof(buf),0);
-                    read_size = readBuf(client_fd,buf,sizeof(buf));
-                    if(read_size < 0)
-                    {
-                        if(errno == EINTR)
-                        {
-                            continue;
-                        }else{
-                            printf("errno:%d,errno:%s\n",errno,strerror(errno));
+                    while((read_size = readBuf(client_fd,buf,sizeof(buf)))) {
+                        if (read_size == -1) {
+                            if (errno == EINTR) {
+                                continue;
+                            } else if(errno == EAGAIN) {
+                                break;
+                            }else{
+                                printf("errno:%d,errno:%s\n", errno, strerror(errno));
+                            }
+                        } else if (read_size > 0) {
+                            //数据报可能出现粘包问题
+                            //查看接收结果
+                            count += read_size;
+                            printf("buf:%s", buf);
                         }
-                    }else if(read_size > 0){
-                        //数据报可能出现粘包问题
-                        //查看接收结果
-                        count+=read_size;
+                    }
 
-                    }else{
+                    if(read_size == 0) {
                         //客户端套接字已经关闭了
-                        printf("%d\n",count);
+                        printf("size:%d\n", count);
+
                         count = 0;
 
                         close(client_fd);
