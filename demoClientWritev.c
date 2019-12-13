@@ -54,16 +54,18 @@ int main()
         {
             while (1)
             {
+                if(count == SEND_NUM)
+                {
+                    break;
+                }
+                printf("size:%ld\n",strlen(data)+1);
                 ssize_t res = writeBuf(socket_fd,data,strlen(data)+1);
                 if(res < 0)
                 {
                     printf("%d;%s\n",errno,strerror(errno));
                 }
 
-                if(count == SEND_NUM)
-                {
-                    break;
-                }
+
                 count++;
             }
             _exit(0);
