@@ -77,9 +77,14 @@ int main()
     //创建一个epoll集合
     int epoll_fd = epoll_create(EVENT_NUM);
 
+    int file_fd;
+
     //将监听套接字加入
     event.data.fd = fd;
     event.events = EPOLLIN|EPOLLET;
+
+    file_fd = open("cache.log",O_WRONLY|O_CREAT,S_IRUSR);
+    printf("file_fd:%d\n",file_fd);
 
     //把监听的套接字加入集合
     res = epoll_ctl(epoll_fd,EPOLL_CTL_ADD,fd,&event);
@@ -135,8 +140,10 @@ int main()
                             //查看接收结果
                             count+=read_size;
                             //继续接收结果
-                            printf("buf:%s",buf);
+                            int res = write(file_fd,buf,read_size);
+                            printf("%d\n",res);
                         }
+                        bzero(buf,strlen(buf));
                     }
 
                     //客户端套接字已经关闭了
