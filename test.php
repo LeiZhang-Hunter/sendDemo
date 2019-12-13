@@ -1,5 +1,5 @@
 <?php
-$file = "cache2.log";
+$file = "cache.log";
 $handle= fopen($file,"r");
 $data = "";
  while (!feof ($handle)) {

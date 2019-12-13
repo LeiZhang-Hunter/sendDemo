@@ -8,7 +8,7 @@
 #include <wait.h>
 #include <stdlib.h>
 
-#define WORK_NUM 1
+#define WORK_NUM 4
 int run = 1;
 #define SEND_COUNT 1000
 int main()

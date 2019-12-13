@@ -82,8 +82,8 @@ int main()
     //将监听套接字加入
     event.data.fd = fd;
     event.events = EPOLLIN|EPOLLET;
-
-    file_fd = open("cache.log",O_WRONLY|O_CREAT,S_IRUSR);
+    unlink("cache.log");
+    file_fd = open("cache.log",O_WRONLY|O_CREAT,S_IRWXU);
     printf("file_fd:%d\n",file_fd);
 
     //把监听的套接字加入集合
