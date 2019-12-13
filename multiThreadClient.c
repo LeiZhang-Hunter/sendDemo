@@ -10,8 +10,8 @@
 #include <sys/uio.h>
 #include <pthread.h>
 
-#define WORK_NUM 4
-#define SEND_NUM 5
+#define WORK_NUM 1
+#define SEND_NUM 1000
 int run = 1;
 
 int writeBuf(int fd,char* buf,size_t len)

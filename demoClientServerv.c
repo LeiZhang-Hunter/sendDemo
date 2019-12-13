@@ -44,7 +44,6 @@ int main()
     int fd = socket(AF_INET,SOCK_STREAM,0);
     struct sockaddr_in server_addr,client_addr;
     int n;
-    int file_fd;
     socklen_t len;
     server_addr.sin_addr.s_addr = inet_addr("0.0.0.0");
     server_addr.sin_port = htons(5000);
@@ -76,11 +75,14 @@ int main()
     //创建一个epoll集合
     int epoll_fd = epoll_create(EVENT_NUM);
 
+    int file_fd;
+    unlink("cache2.log");
+    file_fd = open("cache2.log",O_WRONLY|O_CREAT,S_IRWXU);
+    printf("file_fd:%d\n",file_fd);
+
     //将监听套接字加入
     event.data.fd = fd;
     event.events = EPOLLIN|EPOLLET;
-
-    file_fd = open("cache.log",O_WRONLY|O_CREAT);
 
     //把监听的套接字加入集合
     res = epoll_ctl(epoll_fd,EPOLL_CTL_ADD,fd,&event);
@@ -130,9 +132,11 @@ int main()
                         } else if (read_size > 0) {
                             //数据报可能出现粘包问题
                             //查看接收结果
-                            printf("%s",buf);
+
 //                            write(file_fd,buf,sizeof(buf));
                             count += read_size;
+                            int res = write(file_fd,buf,read_size);
+                            printf("%d\n",res);
                             bzero(buf,read_size);
                         }
                     }
